@@ -1,0 +1,294 @@
+在上一节中成功的搭建了Apache服务器，这节将介绍使用C语言开发能在Apache服务器上运行的CGI程序
+
+
+
+安装好Apache服务器后，在C:\Program Files\Apache Software Foundation\Apache2.2下有一些用于开发Apache服务器的文件
+
+
+
+文件介绍：
+
+bin：Apache服务器软件所在地
+
+cgi-bi：保存C语言写的程序
+
+conf：保存服务器设置的信息
+
+error：网站发送错误的处理
+
+htdcocs：保存HTML程序
+
+icons：保存开发Apache程序用的图标
+
+include：保存开发web程序用到的一些头文件
+
+lib：保存的是开发web程序用到的一些库
+
+logs：日志
+
+manual：Apache服务器语言的设置
+
+modlules：保存一些动态链接库
+
+
+
+程序实例1：开发一个CGI版的hello world程序
+
+开发工具：VS2012  Apache服务器
+
+开发步骤：
+
+首先使用VS2012编译下面的代码
+
+
+#include <stdio.h>
+ 
+void main()
+{
+    //设置HTML语言
+    printf("Content-type:text/html\n\n");
+ 
+    //打印hello world, 我来自CGI
+    //html中的换行符为<br>
+    printf("hello world, 我来自CGI !<br>");
+}
+
+编译成功后在工程目录下的Debug文件夹中会有一个exe格式的可执行文件，我编译的程序中生成的是CGI编程.exe
+
+
+
+
+
+将exe文件复制到C:\Program Files\Apache Software Foundation\Apache2.2\cgi-bin目录下，并且修改文件的格式，将CGI编程.exe改成hello.cgi
+
+
+
+
+
+最后在IE浏览器中输入http://localhost/cgi-bin/hello.cgi
+
+
+
+
+
+程序实例2：遍历Apache服务器中所有的环境变量
+
+首先使用VS2012编译下面的代码
+
+#include <stdio.h>
+#include <stdlib.h>
+ 
+void main()
+{
+    //设置HTML语言
+    printf("Content-type:text/html\n\n");
+ 
+    printf("Eviroments:<br>");
+ 
+    //用于保存环境变量
+    extern char** environ;
+ 
+    //遍历CGI中的所有环境变量
+    for(int i=0; ;i++)
+    {
+        if(NULL == environ[i])
+        {
+            break;
+        }
+ 
+        //打印CGI中所有的环境变量
+        printf("%s<br>", environ[i]);
+    }
+}
+
+将exe文件复制到C:\Program Files\Apache Software Foundation\Apache2.2\cgi-bin目录下，并且修改文件的格式，将CGI编程.exe改成eviroments.cgi
+
+最后在IE浏览器中输入：http://localhost/cgi-bin/eviroments.cgi
+
+
+
+
+
+程序实例3：使用环境变量获得服务器的类型
+
+#include <stdio.h>
+#include <stdlib.h>
+ 
+void main()
+{
+    //设置HTML语言
+    printf("Content-type:text/html\n\n");
+ 
+    printf("%s ",getenv("SERVER_SOFTWARE"));
+}
+
+
+执行结果：
+
+
+
+
+程序实例4：使用环境变量输出web信息
+
+#include <stdio.h>
+#include <stdlib.h>
+ 
+void main()
+{
+    //设置HTML语言
+    printf("Content-type:text/html\n\n");
+ 
+    //递交表单的浏览器的名称、版本   和其他平台性的附加信息。
+    printf("%s<br><br>",getenv("HTTP_USER_AGENT"));
+ 
+    //CGI脚本运行时的主机名和IP地址
+    printf("%s<br><br>",getenv("SERVER_NAME"));
+ 
+    //你的服务器的类型如：
+    printf("%s<br><br>",getenv("SERVER_SOFTWARE"));
+ 
+    //指向这个CGI脚本的路径,
+    printf("%s<br><br>",getenv("SCRIPT_NAME"));
+ 
+    //递交脚本的主机名，这个值不能被设置.
+    printf("%s<br><br>",getenv("REMOTE_HOST"));
+     
+    //递交脚本的主机IP地址.
+    printf("%s<br><br>",getenv("REMOTE_ADDR"));
+      
+    //运行CGI的版本
+    printf("%s<br><br>",getenv("GATEWAY_INTERFACE")); 
+      
+    //服务器运行的TCP口.
+    printf("%s<br><br>",getenv("SERVER_PORT"));
+ 
+    //服务器运行的HTTP协议.
+    printf("%s<br><br>",getenv("SERVER_PROTOCOL"));
+}
+
+
+执行结果：
+
+
+
+
+程序实例５：在网页中添加超链接
+
+#include <stdio.h>
+#include <stdlib.h>
+ 
+void main()
+{
+    //设置HTML语言
+    printf("Content-type:text/html\n\n");
+ 
+    printf("<a href='http://www.baidu.com'>www.baidu.com</a>");
+}
+执行结果：
+
+
+
+
+程序实例６：使用环境变量实现参数传递
+
+#include <stdio.h>
+#include <stdlib.h>
+ 
+void main()
+{
+    //设置HTML语言
+    printf("Content-type:text/html\n\n");
+ 
+    char Name[256];
+ 
+    //使用环境变量获得传递的参数
+    char* queryString = getenv("QUERY_STRING");
+ 
+    //把一个字符串解析到另一个字符串中
+    //将获得的字符串中的%s打印到cName中
+    sscanf(queryString, "name=%s", Name);
+    
+    //打印传递的参数
+    printf("hello %s<br>", Name);
+}
+
+使用VS2012编译上面的代码，编译成功后，在工程目录下的Debug文件夹中会有一个exe文件，将exe文件修改成name.cgi,并且复制到C:\Program Files\Apache Software Foundation\Apache2.2\cgi-bin中
+
+最后在浏览器中输入http://localhost/cgi-bin/name.cgi?name=Tom
+
+执行结果
+
+ 
+
+
+
+程序实例７：使用环境变量传递多个参数
+
+ #include <stdio.h>
+#include <stdlib.h>
+ 
+void main()
+{
+    //设置HTML语言
+    printf("Content-type:text/html\n\n");
+ 
+    int i1,i2;//定义2个变量用于接收传递的参数
+ 
+    //使用环境变量获得传递的参数
+    char* queryString = getenv("QUERY_STRING");
+ 
+    //把一个字符串解析到另一个字符串中
+    //将获得的字符串中的%s打印到cName中
+    sscanf(queryString, "i1=%d&i2=%d", &i1, &i2);
+ 
+    printf("%d+%d=%d", i1, i2, i1+i2);
+}
+使用VS2012编译上面的代码，编译成功后，在工程目录下的Debug文件夹中会有一个exe文件，将exe文件修改成sum.cgi,并且复制到C:\Program Files\Apache Software Foundation\Apache2.2\cgi-bin中
+最后在浏览器中输入http://localhost/cgi-bin/sum.cgi?i1=12&i2=13
+
+执行结果
+
+
+
+
+程序实例8：在CGI中使用HTML
+
+在记事本中输入下面的HTML语言，并且以HTML格式保存
+
+<html>
+<body>
+    <form method=get action="http://localhost/cgi-bin/sum.cgi">
+       i1:<input type="text" name="i1"/>
+       i2:<input type="text", name="i2"/>
+       <input type="submit"/>
+     </form>
+</body>
+</html>
+
+
+将保存好的HTML文件放在C:\Program Files\Apache Software Foundation\Apache2.2\htdocs目录下
+
+在浏览器中输入http://localhost/sum.html
+
+执行结果：
+
+
+
+
+
+计算11+12的结果
+
+在输入框中输入11和12
+
+
+
+
+
+单击提交查询内容后显示了计算结果
+
+
+--------------------- 
+作者：meishadevs 
+来源：CSDN 
+原文：https://blog.csdn.net/u010105970/article/details/41278489 
+版权声明：本文为博主原创文章，转载请附上博文链接！
